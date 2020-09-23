@@ -29,6 +29,11 @@ var (
 		Help: "Count of all HTTP requests",
 	}, []string{"code", "method"})
 
+	httpSuccessTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "http_success_total",
+		Help: "Count of all HTTP 200 requests",
+	})
+
 	httpRequestDuration = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Name: "http_request_duration_seconds",
 		Help: "Duration of all HTTP requests",
@@ -36,11 +41,13 @@ var (
 )
 
 func getAllArticles(w http.ResponseWriter, r *http.Request) {
+	httpSuccessTotal.Inc()
 	json.NewEncoder(w).Encode(Articles)
 }
 
 func registerMetrics(r *prometheus.Registry) {
 	r.MustRegister(httpRequestsTotal)
+	r.MustRegister(httpSuccessTotal)
 	r.MustRegister(httpRequestDuration)
 	r.MustRegister(version)
 }
